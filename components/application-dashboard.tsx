@@ -85,6 +85,29 @@ export function ApplicationDashboard() {
     }
   }
 
+  const handleBulkPhaseTransition = async (applicationIds: string[], newStatus: string, reason?: string) => {
+    try {
+      // Update each application status
+      const promises = applicationIds.map(id => 
+        updateApplicationStatus({
+          id,
+          status: newStatus as any,
+          reason
+        })
+      )
+      
+      const results = await Promise.all(promises)
+      const successCount = results.filter(r => r.success).length
+      
+      console.log(`Successfully updated ${successCount} of ${applicationIds.length} applications`)
+      
+      // Clear selection after successful bulk update
+      setSelectedApplicationIds([])
+    } catch (error) {
+      console.error("Error updating applications in bulk:", error)
+    }
+  }
+
   const handleAddNote = (applicationId: string, note: string) => {
     // TODO: Implement add note logic
     console.log("Add note:", { applicationId, note })
@@ -299,6 +322,7 @@ export function ApplicationDashboard() {
         onClose={() => setShowBulkActions(false)}
         selectedApplications={selectedApplications}
         onBulkAction={handleBulkAction}
+        onBulkPhaseTransition={handleBulkPhaseTransition}
       />
     </div>
   )

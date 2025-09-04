@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Users, ArrowUp, ArrowDown, UserCheck } from "lucide-react"
+import { Users, ArrowUp, ArrowDown, UserCheck, ArrowRightLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,16 +17,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { sampleUsers } from "@/lib/sample-data"
-import type { Application } from "@/lib/types"
+import { BulkPhaseTransitionDialog } from "@/components/bulk-phase-transition-dialog"
+import type { Application, ApplicationStatus } from "@/lib/types"
 
 interface BulkActionsDialogProps {
   isOpen: boolean
   onClose: () => void
   selectedApplications: Application[]
   onBulkAction: (action: string, data: any) => void
+  onBulkPhaseTransition?: (applicationIds: string[], newStatus: ApplicationStatus, reason?: string) => void
 }
 
 const bulkActions = [
+  {
+    id: "phase_transition",
+    label: "Move to Specific Phase",
+    description: "Move selected applications to a specific phase with detailed options",
+    icon: ArrowRightLeft,
+    color: "text-purple-600",
+  },
   {
     id: "advance",
     label: "Advance to Next Phase",
@@ -50,14 +59,27 @@ const bulkActions = [
   },
 ]
 
-export function BulkActionsDialog({ isOpen, onClose, selectedApplications, onBulkAction }: BulkActionsDialogProps) {
+export function BulkActionsDialog({ 
+  isOpen, 
+  onClose, 
+  selectedApplications, 
+  onBulkAction,
+  onBulkPhaseTransition 
+}: BulkActionsDialogProps) {
   const [selectedAction, setSelectedAction] = useState("")
   const [reason, setReason] = useState("")
   const [assignedReviewer, setAssignedReviewer] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPhaseTransitionDialog, setShowPhaseTransitionDialog] = useState(false)
 
   const handleConfirm = async () => {
     if (!selectedAction) return
+
+    // Handle phase transition separately
+    if (selectedAction === "phase_transition") {
+      setShowPhaseTransitionDialog(true)
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -85,6 +107,7 @@ export function BulkActionsDialog({ isOpen, onClose, selectedApplications, onBul
     setReason("")
     setAssignedReviewer("")
     setIsSubmitting(false)
+    setShowPhaseTransitionDialog(false)
     onClose()
   }
 
@@ -92,7 +115,7 @@ export function BulkActionsDialog({ isOpen, onClose, selectedApplications, onBul
   const isFormValid =
     selectedAction &&
     (selectedAction === "assign" ? assignedReviewer : true) &&
-    (selectedAction !== "assign" ? reason.trim() : true)
+    (selectedAction !== "assign" && selectedAction !== "phase_transition" ? reason.trim() : true)
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -174,7 +197,7 @@ export function BulkActionsDialog({ isOpen, onClose, selectedApplications, onBul
           )}
 
           {/* Reason Input */}
-          {selectedAction && selectedAction !== "assign" && (
+          {selectedAction && selectedAction !== "assign" && selectedAction !== "phase_transition" && (
             <div className="space-y-2">
               <Label htmlFor="bulk-reason" className="text-sm font-medium">
                 Reason for {selectedActionConfig?.label.toLowerCase()} (required)
@@ -201,6 +224,19 @@ export function BulkActionsDialog({ isOpen, onClose, selectedApplications, onBul
           </Button>
         </DialogFooter>
       </DialogContent>
+      
+      <BulkPhaseTransitionDialog
+        applications={selectedApplications}
+        selectedApplicationIds={selectedApplications.map(app => app.id)}
+        isOpen={showPhaseTransitionDialog}
+        onClose={() => setShowPhaseTransitionDialog(false)}
+        onBulkPhaseTransition={async (applicationIds, newStatus, reason) => {
+          if (onBulkPhaseTransition) {
+            await onBulkPhaseTransition(applicationIds, newStatus, reason)
+            handleClose()
+          }
+        }}
+      />
     </Dialog>
   )
 }

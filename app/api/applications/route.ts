@@ -88,17 +88,13 @@ export async function PUT(request: NextRequest) {
       )
     }
     
-    // Validate status transition
+    // Validate status transition - allow all transitions between the three phases
     const currentStatus = applications[applicationIndex].status
-    const validTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
-      'submitted': ['interview', 'shortlisted'],
-      'interview': ['shortlisted'],
-      'shortlisted': [] // Final status
-    }
+    const validStatuses: ApplicationStatus[] = ['submitted', 'interview', 'shortlisted']
     
-    if (!validTransitions[currentStatus as ApplicationStatus]?.includes(status)) {
+    if (!validStatuses.includes(status)) {
       return NextResponse.json(
-        { success: false, error: `Invalid status transition from ${currentStatus} to ${status}` },
+        { success: false, error: `Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}` },
         { 
           status: 400,
           headers: {

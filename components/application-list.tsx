@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Briefcase,
   FileText,
+  ArrowRightLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -20,13 +21,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatDate } from "@/lib/utils"
 import { statusColors, statusLabels } from "@/lib/sample-data"
-import type { Application } from "@/lib/types"
+import { PhaseTransitionDialog } from "@/components/phase-transition-dialog"
+import type { Application, ApplicationStatus } from "@/lib/types"
 
 interface ApplicationListProps {
   applications: Application[]
   currentUser: any
   onViewApplication?: (applicationId: string) => void
-  onStatusChange?: (applicationId: string, status: string, reason?: string) => void
+  onStatusChange?: (applicationId: string, status: ApplicationStatus, reason?: string) => void
   selectedApplicationIds?: string[]
   onSelectApplication?: (applicationId: string, checked: boolean) => void
   showSelection?: boolean
@@ -42,6 +44,17 @@ export function ApplicationList({
   showSelection = false,
 }: ApplicationListProps) {
   const [selectedApplication, setSelectedApplication] = useState<string | null>(null)
+  const [phaseTransitionDialog, setPhaseTransitionDialog] = useState<{
+    isOpen: boolean
+    application: Application | null
+  }>({
+    isOpen: false,
+    application: null
+  })
+
+  const handlePhaseTransition = async (applicationId: string, newStatus: ApplicationStatus, reason?: string) => {
+    await onStatusChange?.(applicationId, newStatus, reason)
+  }
 
   if (applications.length === 0) {
     return (
@@ -173,34 +186,16 @@ export function ApplicationList({
                     <DropdownMenuItem>Assign Reviewer</DropdownMenuItem>
                     <DropdownMenuItem>Add Note</DropdownMenuItem>
                     <DropdownMenuItem>Download Resume</DropdownMenuItem>
-                    {application.status === "submitted" && (
-                      <DropdownMenuItem 
-                        onClick={() => onStatusChange?.(application.id, "interview", "Quick status update")}
-                      >
-                        Move to Interview
-                      </DropdownMenuItem>
-                    )}
-                    {application.status === "interview" && (
-                      <DropdownMenuItem 
-                        onClick={() => onStatusChange?.(application.id, "shortlisted", "Quick status update")}
-                      >
-                        Move to Shortlisted
-                      </DropdownMenuItem>
-                    )}
-                    {application.status === "interview" && (
-                      <DropdownMenuItem 
-                        onClick={() => onStatusChange?.(application.id, "submitted", "Moved back for review")}
-                      >
-                        Move Back to Submitted
-                      </DropdownMenuItem>
-                    )}
-                    {application.status === "shortlisted" && (
-                      <DropdownMenuItem 
-                        onClick={() => onStatusChange?.(application.id, "interview", "Moved back for further review")}
-                      >
-                        Move Back to Interview
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem 
+                      onClick={() => setPhaseTransitionDialog({
+                        isOpen: true,
+                        application: application
+                      })}
+                      className="flex items-center gap-2"
+                    >
+                      <ArrowRightLeft className="h-4 w-4" />
+                      Move to Different Phase
+                    </DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive">Delete Application</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -209,6 +204,13 @@ export function ApplicationList({
           </CardContent>
         </Card>
       ))}
+      
+      <PhaseTransitionDialog
+        application={phaseTransitionDialog.application}
+        isOpen={phaseTransitionDialog.isOpen}
+        onClose={() => setPhaseTransitionDialog({ isOpen: false, application: null })}
+        onTransition={handlePhaseTransition}
+      />
     </div>
   )
 }
