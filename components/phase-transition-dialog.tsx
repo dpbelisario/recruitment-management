@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { ArrowRight, ArrowLeft, CheckCircle, Clock, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -94,7 +94,7 @@ export function PhaseTransitionDialog({
             <Label className="text-sm font-medium">Current Phase</Label>
             <div className="flex items-center gap-3 p-3 rounded-lg border">
               <div className={`p-2 rounded-full ${phaseInfo[currentPhase].bgColor}`}>
-                <phaseInfo[currentPhase].icon className={`h-4 w-4 ${phaseInfo[currentPhase].color}`} />
+                {React.createElement(phaseInfo[currentPhase].icon, { className: `h-4 w-4 ${phaseInfo[currentPhase].color}` })}
               </div>
               <div className="flex-1">
                 <Badge className={statusColors[currentPhase]}>
@@ -126,7 +126,7 @@ export function PhaseTransitionDialog({
                     }`}
                   >
                     <div className={`p-2 rounded-full ${phaseInfo[phase].bgColor}`}>
-                      <phaseInfo[phase].icon className={`h-4 w-4 ${phaseInfo[phase].color}`} />
+                      {React.createElement(phaseInfo[phase].icon, { className: `h-4 w-4 ${phaseInfo[phase].color}` })}
                     </div>
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2">

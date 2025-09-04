@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { ArrowRight, ArrowLeft, CheckCircle, Clock, UserCheck, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -16,7 +16,7 @@ interface BulkPhaseTransitionDialogProps {
   selectedApplicationIds: string[]
   isOpen: boolean
   onClose: () => void
-  onBulkTransition: (applicationIds: string[], newStatus: ApplicationStatus, reason?: string) => void
+  onBulkPhaseTransition: (applicationIds: string[], newStatus: ApplicationStatus, reason?: string) => void
 }
 
 const phaseInfo = {
@@ -45,7 +45,7 @@ export function BulkPhaseTransitionDialog({
   selectedApplicationIds,
   isOpen,
   onClose,
-  onBulkTransition
+  onBulkPhaseTransition
 }: BulkPhaseTransitionDialogProps) {
   const [selectedPhase, setSelectedPhase] = useState<ApplicationStatus | null>(null)
   const [reason, setReason] = useState("")
@@ -59,7 +59,7 @@ export function BulkPhaseTransitionDialog({
 
     setIsTransitioning(true)
     try {
-      await onBulkTransition(selectedApplicationIds, selectedPhase, reason.trim() || undefined)
+      await onBulkPhaseTransition(selectedApplicationIds, selectedPhase, reason.trim() || undefined)
       setSelectedPhase(null)
       setReason("")
       onClose()
@@ -115,7 +115,7 @@ export function BulkPhaseTransitionDialog({
               {currentPhases.map((phase) => (
                 <div key={phase} className="flex items-center gap-3 p-3 rounded-lg border">
                   <div className={`p-2 rounded-full ${phaseInfo[phase].bgColor}`}>
-                    <phaseInfo[phase].icon className={`h-4 w-4 ${phaseInfo[phase].color}`} />
+                    {React.createElement(phaseInfo[phase].icon, { className: `h-4 w-4 ${phaseInfo[phase].color}` })}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export function BulkPhaseTransitionDialog({
                     }`}
                   >
                     <div className={`p-2 rounded-full ${phaseInfo[phase].bgColor}`}>
-                      <phaseInfo[phase].icon className={`h-4 w-4 ${phaseInfo[phase].color}`} />
+                      {React.createElement(phaseInfo[phase].icon, { className: `h-4 w-4 ${phaseInfo[phase].color}` })}
                     </div>
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2">
