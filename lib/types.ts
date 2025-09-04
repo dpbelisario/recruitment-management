@@ -74,3 +74,15 @@ export interface FormApplicationData {
   growthMetrics: string
   previousRole: string
 }
+
+export interface StatusUpdateRequest {
+  id: string
+  status: ApplicationStatus
+  reason?: string
+}
+
+export interface StatusUpdateResponse {
+  success: boolean
+  application?: Application
+  error?: string
+}

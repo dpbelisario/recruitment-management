@@ -30,7 +30,7 @@ export function ApplicationDashboard() {
   const [activeTab, setActiveTab] = useState("applications")
   
   // Use real applications from API
-  const { applications: realApplications, loading, error, refetch } = useApplications()
+  const { applications: realApplications, loading, error, refetch, updateApplicationStatus } = useApplications()
   
   // Combine real applications with sample data for now
   const allApplications = [...realApplications, ...sampleApplications]
@@ -65,9 +65,24 @@ export function ApplicationDashboard() {
     setSelectedApplicationId(null)
   }
 
-  const handleStatusChange = (applicationId: string, status: string, reason?: string) => {
-    // TODO: Implement status change logic
-    console.log("Status change:", { applicationId, status, reason })
+  const handleStatusChange = async (applicationId: string, status: string, reason?: string) => {
+    try {
+      const result = await updateApplicationStatus({
+        id: applicationId,
+        status: status as any,
+        reason
+      })
+      
+      if (result.success) {
+        console.log("Status updated successfully:", result.application)
+        // Optionally show a success toast/notification
+      } else {
+        console.error("Failed to update status:", result.error)
+        // Optionally show an error toast/notification
+      }
+    } catch (error) {
+      console.error("Error updating status:", error)
+    }
   }
 
   const handleAddNote = (applicationId: string, note: string) => {
@@ -252,6 +267,7 @@ export function ApplicationDashboard() {
                 applications={filteredApplications}
                 currentUser={currentUser}
                 onViewApplication={handleViewApplication}
+                onStatusChange={handleStatusChange}
                 selectedApplicationIds={selectedApplicationIds}
                 onSelectApplication={handleSelectApplication}
                 showSelection={currentUser.role === "management"}

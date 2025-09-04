@@ -26,6 +26,7 @@ interface ApplicationListProps {
   applications: Application[]
   currentUser: any
   onViewApplication?: (applicationId: string) => void
+  onStatusChange?: (applicationId: string, status: string, reason?: string) => void
   selectedApplicationIds?: string[]
   onSelectApplication?: (applicationId: string, checked: boolean) => void
   showSelection?: boolean
@@ -35,6 +36,7 @@ export function ApplicationList({
   applications,
   currentUser,
   onViewApplication,
+  onStatusChange,
   selectedApplicationIds = [],
   onSelectApplication,
   showSelection = false,
@@ -171,6 +173,34 @@ export function ApplicationList({
                     <DropdownMenuItem>Assign Reviewer</DropdownMenuItem>
                     <DropdownMenuItem>Add Note</DropdownMenuItem>
                     <DropdownMenuItem>Download Resume</DropdownMenuItem>
+                    {application.status === "submitted" && (
+                      <DropdownMenuItem 
+                        onClick={() => onStatusChange?.(application.id, "interview", "Quick status update")}
+                      >
+                        Move to Interview
+                      </DropdownMenuItem>
+                    )}
+                    {application.status === "interview" && (
+                      <DropdownMenuItem 
+                        onClick={() => onStatusChange?.(application.id, "shortlisted", "Quick status update")}
+                      >
+                        Move to Shortlisted
+                      </DropdownMenuItem>
+                    )}
+                    {application.status === "interview" && (
+                      <DropdownMenuItem 
+                        onClick={() => onStatusChange?.(application.id, "submitted", "Moved back for review")}
+                      >
+                        Move Back to Submitted
+                      </DropdownMenuItem>
+                    )}
+                    {application.status === "shortlisted" && (
+                      <DropdownMenuItem 
+                        onClick={() => onStatusChange?.(application.id, "interview", "Moved back for further review")}
+                      >
+                        Move Back to Interview
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem className="text-destructive">Delete Application</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
