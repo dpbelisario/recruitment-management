@@ -75,10 +75,10 @@ export function ApplicationDashboard() {
       
       if (result.success) {
         console.log("Status updated successfully:", result.application)
-        // Optionally show a success toast/notification
+        // Force a refetch to ensure all components are updated
+        await refetch()
       } else {
         console.error("Failed to update status:", result.error)
-        // Optionally show an error toast/notification
       }
     } catch (error) {
       console.error("Error updating status:", error)
@@ -100,6 +100,9 @@ export function ApplicationDashboard() {
       const successCount = results.filter(r => r.success).length
       
       console.log(`Successfully updated ${successCount} of ${applicationIds.length} applications`)
+      
+      // Force a refetch to ensure all components are updated
+      await refetch()
       
       // Clear selection after successful bulk update
       setSelectedApplicationIds([])
