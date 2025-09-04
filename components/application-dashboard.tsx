@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, Filter, Plus, MoreHorizontal, CheckSquare, BarChart3 } from "lucide-react"
+import { Search, Filter, Plus, MoreHorizontal, CheckSquare, BarChart3, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +16,7 @@ import { UserMenu } from "@/components/user-menu"
 import { AnalyticsDashboard } from "@/components/analytics-dashboard"
 import { sampleApplications, sampleUsers } from "@/lib/sample-data"
 import { filterApplications } from "@/lib/utils"
+import { useApplications } from "@/hooks/use-applications"
 import type { ApplicationFilters as FilterType, User } from "@/lib/types"
 
 export function ApplicationDashboard() {
@@ -27,19 +28,25 @@ export function ApplicationDashboard() {
   const [selectedApplicationIds, setSelectedApplicationIds] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
   const [activeTab, setActiveTab] = useState("applications")
+  
+  // Use real applications from API
+  const { applications: realApplications, loading, error, refetch } = useApplications()
+  
+  // Combine real applications with sample data for now
+  const allApplications = [...realApplications, ...sampleApplications]
 
   const filteredApplications = useMemo(() => {
-    return filterApplications(sampleApplications, {
+    return filterApplications(allApplications, {
       ...filters,
       search: searchQuery,
     })
-  }, [filters, searchQuery])
+  }, [allApplications, filters, searchQuery])
 
   const selectedApplication = selectedApplicationId
-    ? sampleApplications.find((app) => app.id === selectedApplicationId)
+    ? allApplications.find((app) => app.id === selectedApplicationId)
     : null
 
-  const selectedApplications = sampleApplications.filter((app) => selectedApplicationIds.includes(app.id))
+  const selectedApplications = allApplications.filter((app) => selectedApplicationIds.includes(app.id))
 
   const handleFilterChange = (newFilters: FilterType) => {
     setFilters(newFilters)
@@ -130,6 +137,10 @@ export function ApplicationDashboard() {
                     Bulk Actions ({selectedApplicationIds.length})
                   </Button>
                 )}
+               <Button variant="outline" size="sm" onClick={refetch} disabled={loading}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Button variant="outline" size="sm">
                 <MoreHorizontal className="h-4 w-4 mr-2" />
                 Actions
@@ -159,7 +170,7 @@ export function ApplicationDashboard() {
           <TabsContent value="applications" className="flex-1 flex flex-col mt-0">
             {/* Stats Overview */}
             <div className="px-6 py-4 border-b border-border">
-              <ApplicationStats applications={sampleApplications} />
+              <ApplicationStats applications={allApplications} />
             </div>
 
             {/* Search and Filters */}
@@ -201,7 +212,7 @@ export function ApplicationDashboard() {
                   <ApplicationFilters
                     filters={filters}
                     onFiltersChange={handleFilterChange}
-                    applications={sampleApplications}
+                    applications={allApplications}
                   />
                 </div>
               )}
@@ -211,7 +222,7 @@ export function ApplicationDashboard() {
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-4">
                     <span className="text-muted-foreground">
-                      Showing {filteredApplications.length} of {sampleApplications.length} applications
+                      Showing {filteredApplications.length} of {allApplications.length} applications
                     </span>
                     {currentUser.role === "management" && filteredApplications.length > 0 && (
                       <div className="flex items-center gap-2">

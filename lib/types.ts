@@ -64,3 +64,13 @@ export interface AnalyticsData {
     count: number
   }[]
 }
+
+export interface FormApplicationData {
+  firstName: string
+  lastName: string
+  email: string
+  selectedPosition: string
+  majorGraduation: string
+  growthMetrics: string
+  previousRole: string
+}
