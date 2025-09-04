@@ -13,6 +13,8 @@ export interface User {
 export interface Application {
   id: string
   applicantName: string
+  firstName?: string
+  lastName?: string
   email: string
   phone: string
   position: string
@@ -20,10 +22,16 @@ export interface Application {
   status: ApplicationStatus
   assignedReviewer?: string
   resumeUrl?: string
+  resumeBase64?: string
+  resumeFileName?: string
+  resumeSize?: number
   portfolioUrl?: string
   coverLetter?: string
   experience: string
   education: string
+  majorAndGraduation?: string
+  previousRole?: string
+  growthMetrics?: string
   skills: string[]
   expectedSalary?: string
   availableStartDate?: string
@@ -73,6 +81,9 @@ export interface FormApplicationData {
   majorGraduation: string
   growthMetrics: string
   previousRole: string
+  resumeBase64?: string
+  resumeFileName?: string
+  resumeSize?: number
 }
 
 export interface StatusUpdateRequest {

@@ -147,9 +147,18 @@ export function ApplicationList({
                       </div>
                     )}
                     {application.resumeUrl && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
                         <FileText className="h-4 w-4" />
-                        <span>Resume attached</span>
+                        <a 
+                          href={application.resumeUrl} 
+                          download={application.resumeFileName || 'resume.pdf'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-orange-400 hover:text-orange-300 hover:underline cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Download Resume ({application.resumeFileName || 'resume.pdf'})
+                        </a>
                       </div>
                     )}
                   </div>
