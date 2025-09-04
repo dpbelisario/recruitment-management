@@ -11,10 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const positions = [
-  "Senior Frontend Engineer",
-  "Senior Backend Engineer",
-  "Junior Frontend Engineer",
-  "Junior Backend Engineer",
+  "Frontend Engineer",
+  "Backend Engineer",
 ]
 
 export function ApplicationForm() {
