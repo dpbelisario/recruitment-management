@@ -3,7 +3,6 @@
 import { useState } from "react"
 import {
   MoreHorizontal,
-  Eye,
   MessageSquare,
   Calendar,
   Mail,
@@ -87,7 +86,10 @@ export function ApplicationList({
                   />
                 )}
 
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedApplication(application.id)}>
+                <div 
+                  className="flex-1 min-w-0 cursor-pointer" 
+                  onDoubleClick={() => onViewApplication?.(application.id)}
+                >
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-primary/10 text-primary font-medium">
@@ -104,7 +106,18 @@ export function ApplicationList({
                       </h3>
                       <p className="text-sm text-muted-foreground truncate">{application.position}</p>
                     </div>
-                    <Badge className={statusColors[application.status]}>{statusLabels[application.status]}</Badge>
+                    <Badge 
+                      className={`${statusColors[application.status]} cursor-pointer hover:opacity-80 transition-opacity`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setPhaseTransitionDialog({
+                          isOpen: true,
+                          application: application
+                        })
+                      }}
+                    >
+                      {statusLabels[application.status]}
+                    </Badge>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
@@ -164,17 +177,6 @@ export function ApplicationList({
               </div>
 
               <div className="flex items-center gap-2 ml-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onViewApplication?.(application.id)
-                  }}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View
-                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
